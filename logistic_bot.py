@@ -6,12 +6,12 @@ from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
     ContextTypes, ConversationHandler, filters
 )
-from aiohttp import web  # добавляем aiohttp для веб-сервера
+from aiohttp import web
 import asyncio
 
 nest_asyncio.apply()
 
-DATA_FILE = 'data.json'
+DATA_FILE = os.path.join(os.path.dirname(__file__), 'data.json')  # Абсолютный путь к data.json
 ADMIN_ID = [1234714307, 6000661816]  # Список админов
 
 # Состояния для ConversationHandler
@@ -23,15 +23,23 @@ def load_data():
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except:
+                data = json.load(f)
+                print(f"[load_data] Загружено треков: {len(data)}")
+                return data
+        except Exception as e:
+            print(f"[load_data] Ошибка загрузки файла: {e}")
             return {}
+    print("[load_data] Файл data.json не найден, возвращаю пустой словарь")
     return {}
 
 
 def save_data(data):
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    try:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print(f"[save_data] Данные сохранены, всего треков: {len(data)}")
+    except Exception as e:
+        print(f"[save_data] Ошибка сохранения файла: {e}")
 
 
 # --- Команды ---
@@ -169,7 +177,7 @@ async def start_web_app():
     app.router.add_get('/', handle_ping)
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, '0.0.0.0', 8080)  # 0.0.0.0 - слушать все интерфейсы
+    site = web.TCPSite(runner, '0.0.0.0', 8080)
     await site.start()
     print("Web server started on port 8080")
 
@@ -216,5 +224,4 @@ async def main():
 
 
 if __name__ == '__main__':
-    import asyncio
     asyncio.run(main())
