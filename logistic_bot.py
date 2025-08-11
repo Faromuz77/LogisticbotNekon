@@ -10,7 +10,7 @@ from telegram.ext import (
 nest_asyncio.apply()
 
 DATA_FILE = 'data.json'
-ADMIN_ID = [1234714307, 6000661816]  # <-- сюда впиши свой Telegram ID
+ADMIN_ID = [1234714307, 6000661816]  # Список админов
 
 # Состояния для ConversationHandler
 TRACK, DESC, TIME = range(3)
@@ -44,7 +44,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- ADD ---
 
 async def add_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.from_user.id != ADMIN_ID:
+    if update.message.from_user.id not in ADMIN_ID:
         await update.message.reply_text("Извини, только админ может добавлять данные.")
         return ConversationHandler.END
     await update.message.reply_text("Введите трек-номер:")
@@ -80,7 +80,7 @@ async def add_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- CHANGE ---
 
 async def change_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.from_user.id != ADMIN_ID:
+    if update.message.from_user.id not in ADMIN_ID:
         await update.message.reply_text("Только админ может изменять данные.")
         return ConversationHandler.END
     await update.message.reply_text("Введите трек-номер для изменения:")
@@ -120,7 +120,7 @@ async def change_value(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- DELETE ---
 
 async def delete_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.from_user.id != ADMIN_ID:
+    if update.message.from_user.id not in ADMIN_ID:
         await update.message.reply_text("Только админ может удалять данные.")
         return
     args = context.args
@@ -169,7 +169,6 @@ async def get_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- MAIN ---
 
 async def main():
-    # Вставь сюда свой токен, если не хочешь использовать переменную окружения
     TOKEN = "7706163791:AAE5QCgERjJRAtvqWtH4ZysiGgk4VPG3p7o"
 
     if not TOKEN:
