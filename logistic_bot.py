@@ -10,7 +10,7 @@ from telegram.ext import (
 nest_asyncio.apply()
 
 DATA_FILE = 'data.json'
-ADMIN_ID = 1234714307  # <-- сюда впиши свой Telegram ID
+ADMIN_ID = [1234714307, 6000661816]  # <-- сюда впиши свой Telegram ID
 
 # Состояния для ConversationHandler
 TRACK, DESC, TIME = range(3)
