@@ -166,48 +166,4 @@ async def get_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(reply)
 
 
-# --- MAIN ---
-
-async def main():
-    TOKEN = "7706163791:AAE5QCgERjJRAtvqWtH4ZysiGgk4VPG3p7o"
-
-    if not TOKEN:
-        print("Ошибка: токен не задан")
-        return
-
-    app = ApplicationBuilder().token(TOKEN).build()
-
-    add_conv = ConversationHandler(
-        entry_points=[CommandHandler('add', add_start)],
-        states={
-            TRACK: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_track)],
-            DESC: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_desc)],
-            TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_time)],
-        },
-        fallbacks=[CommandHandler('cancel', lambda u, c: ConversationHandler.END)],
-    )
-
-    change_conv = ConversationHandler(
-        entry_points=[CommandHandler('change', change_start)],
-        states={
-            CHANGE_TRACK: [MessageHandler(filters.TEXT & ~filters.COMMAND, change_track)],
-            CHANGE_FIELD: [MessageHandler(filters.TEXT & ~filters.COMMAND, change_field)],
-            CHANGE_VALUE: [MessageHandler(filters.TEXT & ~filters.COMMAND, change_value)],
-        },
-        fallbacks=[CommandHandler('cancel', lambda u, c: ConversationHandler.END)],
-    )
-
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(add_conv)
-    app.add_handler(change_conv)
-    app.add_handler(CommandHandler("delete", delete_entry))
-    app.add_handler(CommandHandler("list", list_all))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_info))
-
-    print("Бот запущен...")
-    await app.run_polling()
-
-
-if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
+# ---
