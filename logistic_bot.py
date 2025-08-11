@@ -6,13 +6,13 @@ from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
     ContextTypes, ConversationHandler, filters
 )
-from aiohttp import web
+from aiohttp import web  # для веб-сервера пинга
 import asyncio
 
 nest_asyncio.apply()
 
-DATA_FILE = os.path.join(os.path.dirname(__file__), 'data.json')  # Абсолютный путь к data.json
-ADMIN_ID = [1234714307, 6000661816]  # Список админов
+DATA_FILE = 'data.json'
+ADMIN_ID = [1234714307, 6000661816]  # Твои админы
 
 # Состояния для ConversationHandler
 TRACK, DESC, TIME = range(3)
@@ -23,26 +23,18 @@ def load_data():
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                print(f"[load_data] Загружено треков: {len(data)}")
-                return data
-        except Exception as e:
-            print(f"[load_data] Ошибка загрузки файла: {e}")
+                return json.load(f)
+        except:
             return {}
-    print("[load_data] Файл data.json не найден, возвращаю пустой словарь")
     return {}
 
 
 def save_data(data):
-    try:
-        with open(DATA_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        print(f"[save_data] Данные сохранены, всего треков: {len(data)}")
-    except Exception as e:
-        print(f"[save_data] Ошибка сохранения файла: {e}")
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 
-# --- Команды ---
+# --- Команды бота ---
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -146,7 +138,7 @@ async def list_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not data:
         await update.message.reply_text("Нет данных.")
         return
-    reply = "\n".join([f"{t}: {info['description']} ({info['status']})" for t, info in data.items()])
+    reply = "\n".join([f"{t}: {info.get('description', 'Нет описания')} ({info.get('status', 'Статус не задан')})" for t, info in data.items()])
     await update.message.reply_text(reply)
 
 
@@ -157,9 +149,9 @@ async def get_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         info = data[track]
         reply = (
             f"Трек: {track}\n"
-            f"Описание: {info['description']}\n"
-            f"Время доставки: {info['delivery_time']}\n"
-            f"Статус: {info['status']}"
+            f"Описание: {info.get('description', 'Нет описания')}\n"
+            f"Время доставки: {info.get('delivery_time', 'Не указано')}\n"
+            f"Статус: {info.get('status', 'Неизвестен')}"
         )
     else:
         reply = "Информация не найдена."
@@ -183,9 +175,9 @@ async def start_web_app():
 
 
 async def main():
-    TOKEN = "7706163791:AAE5QCgERjJRAtvqWtH4ZysiGgk4VPG3p7o"
-    if not TOKEN:
-        print("Ошибка: токен не задан")
+    TOKEN = "7706163791:AAE5QCgERjJRAtvqWtH4ZysiGgk4VPG3p7o"  # <-- Замени на свой токен от BotFather
+    if not TOKEN or TOKEN == "ТУТ_ВСТАВЬ_СВОЙ_ТОКЕН":
+        print("Ошибка: токен не задан или оставлен заглушкой")
         return
 
     app = ApplicationBuilder().token(TOKEN).build()
@@ -217,7 +209,6 @@ async def main():
     app.add_handler(CommandHandler("list", list_all))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_info))
 
-    # Запуск веб-сервера и бота одновременно
     await start_web_app()
     print("Бот запущен...")
     await app.run_polling()
