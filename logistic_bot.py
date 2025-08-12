@@ -12,7 +12,7 @@ import asyncio
 nest_asyncio.apply()
 
 DATA_FILE = 'data.json'
-ADMIN_ID = [1234714307, 6000661816]  # Твои админы
+ADMIN_ID = [1234714307, 6000661816]  # Админы
 
 # Состояния для ConversationHandler
 TRACK, DESC, TIME = range(3)
@@ -23,9 +23,13 @@ def load_data():
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except:
+                data = json.load(f)
+                print(f"[load_data] Загружено записей: {len(data)}")
+                return data
+        except Exception as e:
+            print(f"[load_data] Ошибка загрузки: {e}")
             return {}
+    print("[load_data] Файл не найден, возвращаю пустой словарь")
     return {}
 
 
@@ -138,7 +142,10 @@ async def list_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not data:
         await update.message.reply_text("Нет данных.")
         return
-    reply = "\n".join([f"{t}: {info.get('description', 'Нет описания')} ({info.get('status', 'Статус не задан')})" for t, info in data.items()])
+    reply = "\n".join(
+        [f"{t}: {info.get('description', 'Нет описания')} ({info.get('status', 'Статус не задан')})"
+         for t, info in data.items()]
+    )
     await update.message.reply_text(reply)
 
 
@@ -175,7 +182,7 @@ async def start_web_app():
 
 
 async def main():
-    TOKEN = "7706163791:AAE5QCgERjJRAtvqWtH4ZysiGgk4VPG3p7o"  # <-- Замени на свой токен от BotFather
+    TOKEN = "7706163791:AAE5QCgERjJRAtvqWtH4ZysiGgk4VPG3p7o"  # Твой токен
     if not TOKEN or TOKEN == "ТУТ_ВСТАВЬ_СВОЙ_ТОКЕН":
         print("Ошибка: токен не задан или оставлен заглушкой")
         return
